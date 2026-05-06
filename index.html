@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Steriplus AG – Monatlicher EBIT Forecast</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --navy:       #00275a;
+      --dark-blue:  #00428a;
+      --mid-blue:   #1a6fc4;
+      --light-blue: #5ba4e5;
+      --pale-blue:  #c8e0f7;
+      --very-pale:  #eaf4fd;
+      --white:      #ffffff;
+      --text:       #0d1f35;
+      --text-mid:   #3a5678;
+      --border:     #aacbeb;
+      --positive:   #0a7c42;
+      --negative:   #c0392b;
+      --warn:       #e67e22;
+      --shadow:     rgba(0,39,90,0.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--very-pale);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--dark-blue) 60%, var(--mid-blue) 100%);
+      color: var(--white);
+      padding: 0;
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .logo-svg { width: 56px; height: 56px; }
+    .brand-text h1 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .brand-text p {
+      font-size: 0.78rem;
+      opacity: 0.75;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .month-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 6px 12px;
+    }
+    .month-nav button {
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .month-nav button:hover { background: rgba(255,255,255,0.2); }
+    .month-label {
+      font-size: 1.05rem;
+      font-weight: 600;
+      min-width: 160px;
+      text-align: center;
+    }
+    .btn-copy {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: var(--white);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-copy:hover { background: rgba(255,255,255,0.28); }
+
+    /* ── KPI STRIP ──────────────────────────────────── */
+    .kpi-strip {
+      background: var(--dark-blue);
+      border-bottom: 3px solid var(--light-blue);
+    }
+    .kpi-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+    .kpi-card {
+      padding: 16px 24px;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.1);
+      color: var(--white);
+    }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1.1px;
+      opacity: 0.7;
+      margin-bottom: 4px;
+    }
+    .kpi-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+    .kpi-value.positive { color: #6ee8a0; }
+    .kpi-value.negative { color: #ff8080; }
+    .kpi-margin {
+      font-size: 0.78rem;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+
+    /* ── MAIN LAYOUT ────────────────────────────────── */
+    .main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px 32px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+    .chart-row {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 32px 32px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    /* ── SECTION CARDS ──────────────────────────────── */
+    .section-card {
+      background: var(--white);
+      border-radius: 14px;
+      box-shadow: 0 2px 16px var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .section-header.revenue { background: linear-gradient(90deg, var(--dark-blue), var(--mid-blue)); color: var(--white); }
+    .section-header.fixed   { background: linear-gradient(90deg, var(--navy), #1a4a7a); color: var(--white); }
+    .section-header.variable{ background: linear-gradient(90deg, var(--mid-blue), var(--light-blue)); color: var(--white); }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .section-icon { font-size: 1.2rem; }
+    .section-total {
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: rgba(255,255,255,0.18);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+    .section-body { padding: 12px 16px 16px; flex: 1; }
+
+    /* ── LINE ITEMS ─────────────────────────────────── */
+    .line-items { list-style: none; }
+    .line-item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--pale-blue);
+    }
+    .line-item:last-child { border-bottom: none; }
+    .item-label-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .item-label {
+      font-size: 0.88rem;
+      color: var(--text-mid);
+      border: none;
+      background: transparent;
+      width: 100%;
+      outline: none;
+      cursor: text;
+    }
+    .item-label:focus {
+      background: var(--very-pale);
+      border-radius: 4px;
+      padding: 2px 4px;
+    }
+    .item-amount {
+      width: 120px;
+      text-align: right;
+      padding: 5px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--very-pale);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .item-amount:focus { border-color: var(--mid-blue); background: var(--white); }
+    .btn-del {
+      background: none;
+      border: none;
+      color: #b0bec5;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .btn-del:hover { color: var(--negative); background: #fdecea; }
+
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 7px 14px;
+      background: var(--very-pale);
+      border: 1.5px dashed var(--border);
+      border-radius: 8px;
+      color: var(--mid-blue);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-add:hover { background: var(--pale-blue); border-color: var(--mid-blue); }
+
+    /* ── SUBTOTAL ROW ───────────────────────────────── */
+    .subtotal-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      margin-top: 10px;
+      background: var(--very-pale);
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--dark-blue);
+      border-left: 4px solid var(--mid-blue);
+    }
+
+    /* ── CHARTS ─────────────────────────────────────── */
+    .chart-card {
+      background: var(--white);
+      border-radius: 14px;
+      box-shadow: 0 2px 16px var(--shadow);
+      padding: 20px 24px;
+    }
+    .chart-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── EBIT GAUGE ─────────────────────────────────── */
+    .ebit-summary {
+      background: linear-gradient(160deg, var(--navy) 0%, var(--dark-blue) 100%);
+      border-radius: 14px;
+      box-shadow: 0 2px 16px var(--shadow);
+      color: var(--white);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .ebit-summary h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+      opacity: 0.7;
+    }
+    .ebit-big {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+    .ebit-big.positive { color: #6ee8a0; }
+    .ebit-big.negative { color: #ff8080; }
+    .ebit-margin-big {
+      font-size: 1.1rem;
+      opacity: 0.8;
+    }
+    .progress-bar-wrap {
+      width: 100%;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      height: 12px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #6ee8a0, #3dd88a);
+      transition: width 0.4s ease;
+    }
+    .progress-bar-fill.negative { background: linear-gradient(90deg, #ff8080, #e53935); }
+
+    /* ── NOTES ──────────────────────────────────────── */
+    .notes-card {
+      background: var(--white);
+      border-radius: 14px;
+      box-shadow: 0 2px 16px var(--shadow);
+      padding: 20px 24px;
+      margin: 0 32px 32px;
+      max-width: calc(1400px - 64px);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .notes-card h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 10px;
+    }
+    .notes-area {
+      width: 100%;
+      min-height: 80px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      color: var(--text);
+      resize: vertical;
+      outline: none;
+      font-family: inherit;
+      background: var(--very-pale);
+    }
+    .notes-area:focus { border-color: var(--mid-blue); background: var(--white); }
+
+    /* ── FOOTER ─────────────────────────────────────── */
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 14px;
+      font-size: 0.75rem;
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .main { grid-template-columns: 1fr 1fr; }
+      .chart-row { grid-template-columns: 1fr; }
+      .kpi-inner { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .main { grid-template-columns: 1fr; padding: 16px; }
+      .chart-row { padding: 0 16px 24px; }
+      .kpi-inner { grid-template-columns: 1fr 1fr; }
+      .header-inner { flex-wrap: wrap; padding: 14px 16px; }
+      .header-right { width: 100%; justify-content: space-between; }
+      .notes-card { margin: 0 16px 24px; }
+    }
+
+    /* ── ANIMATIONS ─────────────────────────────────── */
+    .line-item { animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+    .tooltip-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      background: var(--pale-blue);
+      color: var(--mid-blue);
+      border-radius: 50%;
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: help;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────── -->
+<header>
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <!-- Steriplus AG Logo (SVG) -->
+      <svg class="logo-svg" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="28" cy="28" r="27" fill="white" fill-opacity="0.1" stroke="white" stroke-width="1.5"/>
+        <!-- Stylized S + cross symbol for sterilization -->
+        <path d="M14 22 Q14 16 20 16 L36 16 Q42 16 42 22 Q42 28 28 28 Q14 28 14 34 Q14 40 20 40 L36 40 Q42 40 42 34"
+              stroke="white" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <!-- Small cross / plus -->
+        <line x1="28" y1="7" x2="28" y2="13" stroke="#5ba4e5" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="25" y1="10" x2="31" y2="10" stroke="#5ba4e5" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Steriplus AG</h1>
+        <p>Kaltbrunn · EBIT Forecast</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="month-nav">
+        <button onclick="changeMonth(-1)" title="Vorheriger Monat">&#8249;</button>
+        <span class="month-label" id="monthLabel">–</span>
+        <button onclick="changeMonth(1)" title="Nächster Monat">&#8250;</button>
+      </div>
+      <button class="btn-copy" onclick="copyMonthData()" title="Daten dieses Monats in den nächsten Monat kopieren">
+        ⊕ Monat kopieren
+      </button>
+      <button class="btn-copy" onclick="window.print()" title="Drucken / PDF">
+        ⎙ Drucken
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ── KPI STRIP ──────────────────────────────────── -->
+<div class="kpi-strip">
+  <div class="kpi-inner">
+    <div class="kpi-card">
+      <div class="kpi-label">Gesamtertrag</div>
+      <div class="kpi-value" id="kpiRevenue">CHF 0</div>
+      <div class="kpi-margin" id="kpiRevenueShare">–</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Fixe Kosten</div>
+      <div class="kpi-value" id="kpiFixed">CHF 0</div>
+      <div class="kpi-margin" id="kpiFixedShare">–</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Variable Kosten</div>
+      <div class="kpi-value" id="kpiVariable">CHF 0</div>
+      <div class="kpi-margin" id="kpiVariableShare">–</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">EBIT</div>
+      <div class="kpi-value" id="kpiEbit">CHF 0</div>
+      <div class="kpi-margin" id="kpiEbitMargin">–</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN SECTIONS ──────────────────────────────── -->
+<div class="main">
+
+  <!-- ERTRÄGE -->
+  <div class="section-card">
+    <div class="section-header revenue" onclick="toggleSection('revenue')">
+      <div class="section-title">
+        <span class="section-icon">📈</span>
+        Erträge (Umsatz)
+      </div>
+      <span class="section-total" id="totalRevenue">CHF 0</span>
+    </div>
+    <div class="section-body" id="section-revenue">
+      <ul class="line-items" id="list-revenue"></ul>
+      <button class="btn-add" onclick="addItem('revenue', '', 0)">+ Position hinzufügen</button>
+      <div class="subtotal-row">
+        <span>Total Ertrag</span>
+        <span id="sub-revenue">CHF 0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIXE KOSTEN -->
+  <div class="section-card">
+    <div class="section-header fixed" onclick="toggleSection('fixed')">
+      <div class="section-title">
+        <span class="section-icon">🏛️</span>
+        Fixe Kosten
+      </div>
+      <span class="section-total" id="totalFixed">CHF 0</span>
+    </div>
+    <div class="section-body" id="section-fixed">
+      <ul class="line-items" id="list-fixed"></ul>
+      <button class="btn-add" onclick="addItem('fixed', '', 0)">+ Position hinzufügen</button>
+      <div class="subtotal-row">
+        <span>Total Fixe Kosten</span>
+        <span id="sub-fixed">CHF 0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VARIABLE KOSTEN -->
+  <div class="section-card">
+    <div class="section-header variable" onclick="toggleSection('variable')">
+      <div class="section-title">
+        <span class="section-icon">⚙️</span>
+        Variable Kosten
+      </div>
+      <span class="section-total" id="totalVariable">CHF 0</span>
+    </div>
+    <div class="section-body" id="section-variable">
+      <ul class="line-items" id="list-variable"></ul>
+      <button class="btn-add" onclick="addItem('variable', '', 0)">+ Position hinzufügen</button>
+      <div class="subtotal-row">
+        <span>Total Variable Kosten</span>
+        <span id="sub-variable">CHF 0</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── CHARTS ─────────────────────────────────────── -->
+<div class="chart-row">
+
+  <!-- Waterfall / Bar chart -->
+  <div class="chart-card">
+    <div class="chart-title">📊 Ertrag vs. Kosten – Monatlicher Überblick</div>
+    <canvas id="barChart" height="120"></canvas>
+  </div>
+
+  <!-- EBIT Summary -->
+  <div class="ebit-summary">
+    <h3>Monatliches EBIT</h3>
+    <div class="ebit-big" id="ebitBig">CHF 0</div>
+    <div class="ebit-margin-big" id="ebitMarginBig">Marge: –</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="ebitBar" style="width:0%"></div>
+    </div>
+    <div style="width:100%; margin-top:8px;">
+      <canvas id="donutChart" height="180"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── NOTES ──────────────────────────────────────── -->
+<div class="notes-card">
+  <h3>📝 Notizen / Kommentare</h3>
+  <textarea class="notes-area" id="notesArea" placeholder="Ergänzende Hinweise, besondere Ereignisse oder Annahmen für diesen Monat ..."></textarea>
+</div>
+
+<footer>
+  © 2026 Steriplus AG, Kaltbrunn · EBIT Forecast Tool · Alle Daten werden lokal im Browser gespeichert
+</footer>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   DATA MODEL
+   data[year][month] = { revenue:[], fixed:[], variable:[], notes:'' }
+   Each item: { id, label, amount }
+══════════════════════════════════════════════════════ */
+
+const MONTHS_DE = ['Januar','Februar','März','April','Mai','Juni',
+                   'Juli','August','September','Oktober','November','Dezember'];
+
+let currentYear  = new Date().getFullYear();
+let currentMonth = new Date().getMonth(); // 0-based
+let data = {};
+let barChart, donutChart;
+let nextId = 1;
+
+// ── DEFAULT ITEMS ───────────────────────────────────
+const DEFAULTS = {
+  revenue: [
+    { label: 'Sterilisationsleistungen intern',  amount: 0 },
+    { label: 'Sterilisationsleistungen extern',  amount: 0 },
+    { label: 'Gerätemiete / Leasing',            amount: 0 },
+    { label: 'Beratung & Schulung',              amount: 0 },
+    { label: 'Sonstige Erträge',                 amount: 0 },
+  ],
+  fixed: [
+    { label: 'Personalkosten (Löhne & AHV)',     amount: 0 },
+    { label: 'Miete & Nebenkosten',              amount: 0 },
+    { label: 'Abschreibungen',                   amount: 0 },
+    { label: 'Versicherungen',                   amount: 0 },
+    { label: 'IT / Lizenzen / Software',         amount: 0 },
+    { label: 'Verwaltung & Administration',      amount: 0 },
+  ],
+  variable: [
+    { label: 'Material & Verbrauchsmittel',      amount: 0 },
+    { label: 'Energie (Strom / Wasser / Gas)',   amount: 0 },
+    { label: 'Transport & Logistik',             amount: 0 },
+    { label: 'Reinigung & Hygienemittel',        amount: 0 },
+    { label: 'Wartung & Reparaturen',            amount: 0 },
+  ],
+};
+
+// ── HELPERS ─────────────────────────────────────────
+function key(y, m) { return `${y}-${m}`; }
+
+function getMonthData(y, m) {
+  const k = key(y, m);
+  if (!data[k]) {
+    data[k] = {
+      revenue:  DEFAULTS.revenue.map(i  => ({ id: nextId++, label: i.label,  amount: i.amount })),
+      fixed:    DEFAULTS.fixed.map(i    => ({ id: nextId++, label: i.label,  amount: i.amount })),
+      variable: DEFAULTS.variable.map(i => ({ id: nextId++, label: i.label,  amount: i.amount })),
+      notes: '',
+    };
+  }
+  return data[k];
+}
+
+function sum(arr) { return arr.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0); }
+
+function fmt(n) {
+  return 'CHF ' + n.toLocaleString('de-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function pct(part, total) {
+  if (!total) return '–';
+  return (part / total * 100).toFixed(1) + ' %';
+}
+
+// ── RENDER ───────────────────────────────────────────
+function renderAll() {
+  const md = getMonthData(currentYear, currentMonth);
+  renderList('revenue',  md.revenue);
+  renderList('fixed',    md.fixed);
+  renderList('variable', md.variable);
+  document.getElementById('notesArea').value = md.notes || '';
+  updateCalc();
+}
+
+function renderList(type, items) {
+  const ul = document.getElementById('list-' + type);
+  ul.innerHTML = '';
+  items.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'line-item';
+    li.dataset.id = item.id;
+    li.innerHTML = `
+      <div class="item-label-wrap">
+        <input class="item-label" type="text" value="${escHtml(item.label)}"
+               onchange="updateLabel('${type}', ${item.id}, this.value)"
+               placeholder="Bezeichnung …" />
+      </div>
+      <input class="item-amount" type="number" min="0" step="100"
+             value="${item.amount || ''}"
+             placeholder="0"
+             onchange="updateAmount('${type}', ${item.id}, this.value)"
+             oninput="updateAmount('${type}', ${item.id}, this.value)" />
+      <button class="btn-del" onclick="deleteItem('${type}', ${item.id})" title="Löschen">✕</button>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── MUTATIONS ────────────────────────────────────────
+function addItem(type, label, amount) {
+  const md = getMonthData(currentYear, currentMonth);
+  md[type].push({ id: nextId++, label: label || '', amount: amount || 0 });
+  renderAll();
+  // Focus last input
+  setTimeout(() => {
+    const inputs = document.querySelectorAll(`#list-${type} .item-label`);
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+
+function updateLabel(type, id, val) {
+  const md = getMonthData(currentYear, currentMonth);
+  const item = md[type].find(i => i.id === id);
+  if (item) item.label = val;
+  updateCalc();
+  save();
+}
+
+function updateAmount(type, id, val) {
+  const md = getMonthData(currentYear, currentMonth);
+  const item = md[type].find(i => i.id === id);
+  if (item) item.amount = parseFloat(val) || 0;
+  updateCalc();
+  save();
+}
+
+function deleteItem(type, id) {
+  const md = getMonthData(currentYear, currentMonth);
+  md[type] = md[type].filter(i => i.id !== id);
+  renderAll();
+  save();
+}
+
+// ── CALC & KPI ───────────────────────────────────────
+function updateCalc() {
+  const md   = getMonthData(currentYear, currentMonth);
+  const rev  = sum(md.revenue);
+  const fix  = sum(md.fixed);
+  const vari = sum(md.variable);
+  const ebit = rev - fix - vari;
+  const margin = rev ? ebit / rev * 100 : 0;
+
+  // Subtotals inside sections
+  document.getElementById('totalRevenue').textContent  = fmt(rev);
+  document.getElementById('totalFixed').textContent    = fmt(fix);
+  document.getElementById('totalVariable').textContent = fmt(vari);
+  document.getElementById('sub-revenue').textContent   = fmt(rev);
+  document.getElementById('sub-fixed').textContent     = fmt(fix);
+  document.getElementById('sub-variable').textContent  = fmt(vari);
+
+  // KPI strip
+  document.getElementById('kpiRevenue').textContent     = fmt(rev);
+  document.getElementById('kpiFixed').textContent       = fmt(fix);
+  document.getElementById('kpiVariable').textContent    = fmt(vari);
+  document.getElementById('kpiEbit').textContent        = fmt(ebit);
+  document.getElementById('kpiRevenueShare').textContent  = '100 % des Umsatzes';
+  document.getElementById('kpiFixedShare').textContent    = pct(fix, rev) + ' des Umsatzes';
+  document.getElementById('kpiVariableShare').textContent = pct(vari, rev) + ' des Umsatzes';
+  document.getElementById('kpiEbitMargin').textContent    = 'Marge ' + pct(ebit, rev);
+
+  const ebitEl = document.getElementById('kpiEbit');
+  ebitEl.className = 'kpi-value ' + (ebit >= 0 ? 'positive' : 'negative');
+
+  // EBIT big
+  const ebitBig = document.getElementById('ebitBig');
+  ebitBig.textContent = fmt(ebit);
+  ebitBig.className = 'ebit-big ' + (ebit >= 0 ? 'positive' : 'negative');
+  document.getElementById('ebitMarginBig').textContent = 'Marge: ' + pct(ebit, rev);
+
+  // Progress bar (cap at 100 %)
+  const barPct = rev > 0 ? Math.min(Math.max(ebit / rev * 100, 0), 100) : 0;
+  const barEl = document.getElementById('ebitBar');
+  barEl.style.width = barPct + '%';
+  barEl.className = 'progress-bar-fill' + (ebit < 0 ? ' negative' : '');
+
+  updateCharts(rev, fix, vari, ebit);
+}
+
+// ── CHARTS ───────────────────────────────────────────
+function initCharts() {
+  const barCtx   = document.getElementById('barChart').getContext('2d');
+  const donutCtx = document.getElementById('donutChart').getContext('2d');
+
+  barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Ertrag', 'Fixe Kosten', 'Variable Kosten', 'EBIT'],
+      datasets: [{
+        label: 'CHF',
+        data: [0, 0, 0, 0],
+        backgroundColor: ['#1a6fc4', '#003366', '#5ba4e5', '#6ee8a0'],
+        borderRadius: 8,
+        borderSkipped: false,
+      }],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' CHF ' + ctx.raw.toLocaleString('de-CH'),
+          },
+        },
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: v => 'CHF ' + v.toLocaleString('de-CH'),
+            color: '#3a5678',
+          },
+          grid: { color: '#c8e0f7' },
+        },
+        x: { ticks: { color: '#3a5678' }, grid: { display: false } },
+      },
+    },
+  });
+
+  donutChart = new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Fixe Kosten', 'Variable Kosten', 'EBIT'],
+      datasets: [{
+        data: [0, 0, 0],
+        backgroundColor: ['#003366', '#5ba4e5', '#6ee8a0'],
+        borderWidth: 0,
+        hoverOffset: 8,
+      }],
+    },
+    options: {
+      responsive: true,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: 'rgba(255,255,255,0.8)',
+            padding: 12,
+            font: { size: 11 },
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' CHF ' + ctx.raw.toLocaleString('de-CH'),
+          },
+        },
+      },
+    },
+  });
+}
+
+function updateCharts(rev, fix, vari, ebit) {
+  if (!barChart || !donutChart) return;
+
+  barChart.data.datasets[0].data = [rev, fix, vari, Math.max(ebit, 0)];
+  barChart.data.datasets[0].backgroundColor = [
+    '#1a6fc4', '#003366', '#5ba4e5', ebit >= 0 ? '#6ee8a0' : '#ff8080',
+  ];
+  barChart.update('none');
+
+  const dFix  = Math.max(fix, 0);
+  const dVar  = Math.max(vari, 0);
+  const dEbit = Math.max(ebit, 0);
+  const total = dFix + dVar + dEbit || 1;
+  donutChart.data.datasets[0].data = [dFix, dVar, dEbit];
+  donutChart.data.datasets[0].backgroundColor = [
+    '#003366', '#5ba4e5', ebit >= 0 ? '#6ee8a0' : '#ff8080',
+  ];
+  donutChart.update('none');
+}
+
+// ── MONTH NAVIGATION ────────────────────────────────
+function changeMonth(delta) {
+  save(); // save current before switching
+  currentMonth += delta;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
+  updateMonthLabel();
+  renderAll();
+}
+
+function updateMonthLabel() {
+  document.getElementById('monthLabel').textContent =
+    MONTHS_DE[currentMonth] + ' ' + currentYear;
+}
+
+// ── COPY MONTH ───────────────────────────────────────
+function copyMonthData() {
+  save();
+  const src = getMonthData(currentYear, currentMonth);
+  // Determine next month
+  let ny = currentYear, nm = currentMonth + 1;
+  if (nm > 11) { nm = 0; ny++; }
+  const destKey = key(ny, nm);
+  // Deep copy items with new IDs
+  data[destKey] = {
+    revenue:  src.revenue.map(i  => ({ id: nextId++, label: i.label, amount: i.amount })),
+    fixed:    src.fixed.map(i    => ({ id: nextId++, label: i.label, amount: i.amount })),
+    variable: src.variable.map(i => ({ id: nextId++, label: i.label, amount: i.amount })),
+    notes: src.notes,
+  };
+  save();
+  // Navigate to next month
+  currentMonth = nm; currentYear = ny;
+  updateMonthLabel();
+  renderAll();
+  alert(`Daten wurden nach ${MONTHS_DE[nm]} ${ny} kopiert.`);
+}
+
+// ── SECTION TOGGLE ───────────────────────────────────
+function toggleSection(type) {
+  const body = document.getElementById('section-' + type);
+  body.style.display = body.style.display === 'none' ? '' : 'none';
+}
+
+// ── NOTES ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('notesArea').addEventListener('input', function() {
+    const md = getMonthData(currentYear, currentMonth);
+    md.notes = this.value;
+    save();
+  });
+});
+
+// ── PERSISTENCE ─────────────────────────────────────
+function save() {
+  try {
+    localStorage.setItem('steriplus_ebit_data', JSON.stringify({ data, nextId }));
+  } catch(e) { /* storage full */ }
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem('steriplus_ebit_data');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      data   = parsed.data   || {};
+      nextId = parsed.nextId || 1;
+    }
+  } catch(e) { data = {}; }
+}
+
+// ── INIT ─────────────────────────────────────────────
+load();
+updateMonthLabel();
+initCharts();
+renderAll();
+</script>
+</body>
+</html>
