@@ -1,0 +1,19 @@
+{
+  "name": "Meine Collection",
+  "short_name": "Collection",
+  "description": "Persönliche Uhren-App für meine Sammlung: Omega, Seiko Presage, Casio, TAG Heuer Aquaracer, Swatch.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d0d0f",
+  "theme_color": "#0d0d0f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d0d0f'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c9a96a' stroke-width='6'/%3E%3Ccircle cx='50' cy='50' r='3' fill='%23c9a96a'/%3E%3Cline x1='50' y1='50' x2='50' y2='30' stroke='%23c9a96a' stroke-width='4' stroke-linecap='round'/%3E%3Cline x1='50' y1='50' x2='64' y2='58' stroke='%23c9a96a' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

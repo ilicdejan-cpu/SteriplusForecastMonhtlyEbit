@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0d0d0f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Collection" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d0d0f'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c9a96a' stroke-width='6'/%3E%3Ccircle cx='50' cy='50' r='3' fill='%23c9a96a'/%3E%3Cline x1='50' y1='50' x2='50' y2='30' stroke='%23c9a96a' stroke-width='4' stroke-linecap='round'/%3E%3Cline x1='50' y1='50' x2='64' y2='58' stroke='%23c9a96a' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
+<title>MEINE COLLECTION</title>
+<style>
+  :root{
+    --bg: #0d0d0f;
+    --bg-elev: #17171a;
+    --bg-elev2: #1f1f23;
+    --card: #1a1a1d;
+    --border: #2b2b30;
+    --text: #f2f0ea;
+    --text-dim: #a7a49c;
+    --text-faint: #6f6d68;
+    --gold: #c9a96a;
+    --gold-soft: rgba(201,169,106,0.14);
+    --danger: #d16b5c;
+    --ok: #6fae7f;
+    --radius: 18px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  [data-theme="light"]{
+    --bg: #f5f3ee;
+    --bg-elev: #ffffff;
+    --bg-elev2: #ece8df;
+    --card: #ffffff;
+    --border: #e2ddd0;
+    --text: #201f1c;
+    --text-dim: #6b675f;
+    --text-faint: #9a968b;
+    --gold: #9c7a3c;
+    --gold-soft: rgba(156,122,60,0.12);
+  }
+  *,*::before,*::after{ box-sizing: border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent; }
+  html,body{ height:100%; }
+  body{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    transition: background .25s ease, color .25s ease;
+  }
+  .app{
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    background: var(--bg);
+    display:flex;
+    flex-direction:column;
+    box-shadow: 0 0 60px rgba(0,0,0,0.35);
+  }
+
+  /* HEADER */
+  header.topbar{
+    padding: calc(18px + var(--safe-top)) 20px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position: sticky;
+    top:0;
+    z-index: 20;
+    background: linear-gradient(180deg, var(--bg) 70%, transparent);
+    backdrop-filter: blur(10px);
+  }
+  .brandmark{ display:flex; align-items:center; gap:10px; }
+  .brandmark .crest{
+    width:34px; height:34px; border-radius:9px;
+    background: var(--gold-soft);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--gold);
+    border: 1px solid var(--border);
+  }
+  .brandmark h1{
+    font-size: 0.72rem;
+    letter-spacing: 2.4px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .brandmark h1 span{ color: var(--gold); }
+  .icon-btn{
+    width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .icon-btn svg{ width:18px; height:18px; }
+
+  main{ flex:1; padding: 0 20px calc(100px + var(--safe-bottom)); }
+  .view{ display:none; animation: fade .25s ease; }
+  .view.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  /* HOME */
+  .greeting{ margin: 6px 0 18px; }
+  .greeting h2{ font-size: 1.5rem; font-weight: 700; letter-spacing: 0.2px; }
+  .greeting p{ color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; }
+
+  .stat-row{ display:grid; grid-template-columns: repeat(3,1fr); gap:10px; margin-bottom: 22px; }
+  .stat-card{
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 10px;
+    text-align:center;
+  }
+  .stat-card .v{ font-size: 1.15rem; font-weight:700; color: var(--gold); }
+  .stat-card .l{ font-size: 0.62rem; letter-spacing: 0.6px; text-transform:uppercase; color: var(--text-faint); margin-top:2px; }
+
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin: 22px 0 12px; }
+  .section-head h3{ font-size: 0.95rem; font-weight:700; }
+  .section-head a{ font-size: 0.75rem; color: var(--gold); cursor:pointer; }
+
+  .brand-chips{ display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+  .brand-chips::-webkit-scrollbar{ display:none; }
+  .chip{
+    flex-shrink:0;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .chip.active{ background: var(--gold); color:#1a1408; border-color: var(--gold); font-weight:700; }
+
+  .today-card{
+    background: linear-gradient(135deg, var(--bg-elev2), var(--bg-elev));
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    display:flex; align-items:center; gap:14px;
+    margin-bottom: 4px;
+  }
+  .today-card .dial{
+    width:56px; height:56px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.5rem;
+    border: 2px solid var(--gold);
+    flex-shrink:0;
+  }
+  .today-card .info{ flex:1; min-width:0; }
+  .today-card .info .b{ font-size:0.68rem; text-transform:uppercase; letter-spacing:1px; color: var(--text-faint); }
+  .today-card .info .m{ font-size:0.95rem; font-weight:700; margin-top:1px; }
+  .today-card .info .s{ font-size:0.72rem; color: var(--text-dim); margin-top:2px; }
+  .today-card .change{ font-size: 0.68rem; color: var(--gold); border:1px solid var(--gold); border-radius:999px; padding:5px 10px; cursor:pointer; flex-shrink:0; }
+
+  /* CARDS GRID */
+  .watch-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .watch-card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    cursor:pointer;
+    position:relative;
+    transition: transform .15s ease;
+  }
+  .watch-card:active{ transform: scale(0.97); }
+  .watch-card .fav{
+    position:absolute; top:10px; right:10px; font-size:0.9rem; color: var(--text-faint);
+  }
+  .watch-card .fav.on{ color: var(--danger); }
+  .watch-card .dial{
+    width:64px; height:64px; border-radius:50%;
+    margin: 4px auto 10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.7rem;
+    border: 3px solid;
+  }
+  .watch-card .brand{ font-size:0.62rem; text-transform:uppercase; letter-spacing:1px; color: var(--text-faint); text-align:center; }
+  .watch-card .model{ font-size:0.82rem; font-weight:700; text-align:center; margin-top:2px; line-height:1.25; }
+  .watch-card .price{ font-size:0.72rem; color: var(--gold); text-align:center; margin-top:6px; }
+
+  .watch-list-row{
+    display:flex; align-items:center; gap:12px;
+    background: var(--card);
+    border:1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor:pointer;
+  }
+  .watch-list-row .dial{ width:48px; height:48px; border-radius:50%; border:2px solid; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+  .watch-list-row .info{ flex:1; min-width:0; }
+  .watch-list-row .info .m{ font-size:0.85rem; font-weight:700; }
+  .watch-list-row .info .b{ font-size:0.68rem; color: var(--text-faint); text-transform:uppercase; letter-spacing:0.6px; }
+  .badge{ font-size:0.62rem; padding:4px 8px; border-radius:999px; font-weight:700; white-space:nowrap; }
+  .badge.due{ background: rgba(209,107,92,0.15); color: var(--danger); }
+  .badge.soon{ background: rgba(201,169,106,0.15); color: var(--gold); }
+  .badge.ok{ background: rgba(111,174,127,0.15); color: var(--ok); }
+
+  .empty{ text-align:center; padding: 40px 10px; color: var(--text-faint); font-size:0.85rem; }
+
+  /* BOTTOM NAV */
+  nav.tabbar{
+    position: fixed;
+    bottom:0; left:0; right:0;
+    max-width:480px; margin:0 auto;
+    background: var(--bg-elev);
+    border-top: 1px solid var(--border);
+    display:flex;
+    padding: 8px 6px calc(8px + var(--safe-bottom));
+    z-index: 30;
+  }
+  .tab{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:6px 0; cursor:pointer; color: var(--text-faint);
+  }
+  .tab svg{ width:21px; height:21px; }
+  .tab span{ font-size:0.6rem; font-weight:600; letter-spacing:0.3px; }
+  .tab.active{ color: var(--gold); }
+
+  /* DETAIL / EDIT OVERLAY */
+  .overlay{
+    position: fixed; inset:0; z-index: 50;
+    background: rgba(0,0,0,0.5);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .overlay.show{ display:flex; }
+  .sheet{
+    width:100%; max-width:480px;
+    max-height: 92vh;
+    background: var(--bg);
+    border-radius: 24px 24px 0 0;
+    overflow-y:auto;
+    padding: 18px 20px calc(30px + var(--safe-bottom));
+    animation: slideup .28s cubic-bezier(.2,.8,.3,1);
+  }
+  @keyframes slideup{ from{ transform: translateY(100%);} to{ transform: translateY(0);} }
+  .sheet-handle{ width:40px; height:4px; background: var(--border); border-radius:2px; margin: 0 auto 14px; }
+  .sheet-close{ position:absolute; top:14px; right:20px; }
+
+  .detail-head{ display:flex; align-items:center; gap:16px; margin-bottom: 18px; }
+  .detail-dial{
+    width:84px; height:84px; border-radius:50%; border: 3px solid;
+    display:flex; align-items:center; justify-content:center; font-size:2.2rem; flex-shrink:0;
+    position:relative; overflow:hidden; background-size:cover; background-position:center;
+  }
+  .detail-head .b{ font-size:0.68rem; text-transform:uppercase; letter-spacing:1px; color: var(--text-faint); }
+  .detail-head .m{ font-size:1.15rem; font-weight:700; margin-top:2px; }
+  .detail-head .ref{ font-size:0.75rem; color: var(--text-dim); margin-top:2px; }
+
+  .action-row{ display:flex; gap:8px; margin-bottom: 18px; }
+  .btn{
+    flex:1; padding: 11px 10px; border-radius: 12px; border:1px solid var(--border);
+    background: var(--bg-elev); color: var(--text); font-size:0.75rem; font-weight:600;
+    display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;
+  }
+  .btn.primary{ background: var(--gold); color:#1a1408; border-color: var(--gold); }
+  .btn.danger{ color: var(--danger); border-color: rgba(209,107,92,0.4); }
+  .btn svg{ width:14px; height:14px; }
+
+  .spec-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 18px; }
+  .spec-item{ background: var(--bg-elev); border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
+  .spec-item .l{ font-size:0.6rem; text-transform:uppercase; letter-spacing:0.6px; color: var(--text-faint); }
+  .spec-item .v{ font-size:0.85rem; font-weight:600; margin-top:2px; }
+
+  .notes-box{ background: var(--bg-elev); border:1px solid var(--border); border-radius:12px; padding:12px; font-size:0.82rem; color: var(--text-dim); line-height:1.5; margin-bottom:18px; min-height: 20px; }
+
+  .timeline{ margin-bottom: 10px; }
+  .tl-item{ display:flex; gap:12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .tl-item:last-child{ border-bottom:none; }
+  .tl-dot{ width:8px; height:8px; border-radius:50%; background: var(--gold); margin-top:6px; flex-shrink:0; }
+  .tl-item .info{ flex:1; }
+  .tl-item .t1{ font-size:0.8rem; font-weight:600; }
+  .tl-item .t2{ font-size:0.7rem; color: var(--text-faint); margin-top:1px; }
+  .tl-item .del{ color: var(--text-faint); cursor:pointer; font-size: 0.8rem; padding: 2px 6px; }
+
+  .form-row{ margin-bottom: 12px; }
+  .form-row label{ font-size:0.68rem; text-transform:uppercase; letter-spacing:0.6px; color: var(--text-faint); display:block; margin-bottom:5px; }
+  .form-row input, .form-row select, .form-row textarea{
+    width:100%; padding: 10px 12px; border-radius:10px; border:1px solid var(--border);
+    background: var(--bg-elev); color: var(--text); font-size:0.85rem; font-family:inherit;
+  }
+  .form-row textarea{ resize:vertical; min-height:60px; }
+  .form-2col{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  .service-summary{
+    background: var(--bg-elev); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:14px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .service-summary .l{ font-size:0.72rem; color: var(--text-dim); }
+  .service-summary .v{ font-size:1.3rem; font-weight:700; color: var(--gold); }
+
+  .settings-item{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 14px 4px; border-bottom: 1px solid var(--border);
+  }
+  .settings-item .l{ font-size:0.85rem; font-weight:600; }
+  .settings-item .s{ font-size:0.72rem; color: var(--text-faint); margin-top:2px; }
+  .switch{ width:44px; height:26px; border-radius:999px; background: var(--border); position:relative; cursor:pointer; flex-shrink:0; }
+  .switch::after{ content:''; position:absolute; width:20px; height:20px; border-radius:50%; background:#fff; top:3px; left:3px; transition: transform .2s ease; }
+  .switch.on{ background: var(--gold); }
+  .switch.on::after{ transform: translateX(18px); }
+
+  .profile-card{ display:flex; align-items:center; gap:14px; padding: 8px 4px 20px; }
+  .profile-avatar{ width:56px; height:56px; border-radius:50%; background: var(--gold-soft); color:var(--gold); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.3rem; border:1px solid var(--border); }
+
+  .toast{
+    position: fixed; bottom: 100px; left:50%; transform:translateX(-50%);
+    background: var(--text); color: var(--bg); padding: 10px 18px; border-radius:999px;
+    font-size:0.78rem; font-weight:600; z-index: 80; opacity:0; pointer-events:none; transition: opacity .25s ease, transform .25s ease;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(-6px); }
+
+  ::selection{ background: var(--gold-soft); }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <header class="topbar">
+    <div class="brandmark">
+      <div class="crest">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+      <h1>MEINE <span>COLLECTION</span></h1>
+    </div>
+    <div class="icon-btn" onclick="openSettings()">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- HOME -->
+    <section class="view active" id="view-home">
+      <div class="greeting">
+        <h2 id="greetingText">Guten Tag</h2>
+        <p id="dateText"></p>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card"><div class="v" id="statCount">-</div><div class="l">Uhren</div></div>
+        <div class="stat-card"><div class="v" id="statValue">-</div><div class="l">Wert (CHF)</div></div>
+        <div class="stat-card"><div class="v" id="statService">-</div><div class="l">Nächster Service</div></div>
+      </div>
+
+      <div class="section-head"><h3>Heute getragen</h3></div>
+      <div id="todayCard"></div>
+
+      <div class="section-head"><h3>Marken</h3></div>
+      <div class="brand-chips" id="brandChips"></div>
+
+      <div class="section-head"><h3>Meine Uhren</h3><a onclick="goto('sammlung')">Alle ansehen</a></div>
+      <div class="watch-grid" id="homeGrid"></div>
+    </section>
+
+    <!-- SAMMLUNG -->
+    <section class="view" id="view-sammlung">
+      <div class="greeting"><h2>Sammlung</h2><p id="sammlungSub"></p></div>
+      <div class="brand-chips" id="brandChips2" style="margin-bottom:16px;"></div>
+      <div class="watch-grid" id="sammlungGrid"></div>
+    </section>
+
+    <!-- SERVICE -->
+    <section class="view" id="view-service">
+      <div class="greeting"><h2>Service &amp; Pflege</h2><p>Überblick über Wartung und Historie</p></div>
+      <div class="service-summary">
+        <div><div class="l">Fällig / bald fällig</div><div class="v" id="serviceDueCount">0</div></div>
+        <div class="btn primary" style="flex:none; padding:10px 16px;" onclick="openAddServiceGlobal()">+ Eintrag</div>
+      </div>
+      <div id="serviceList"></div>
+    </section>
+
+    <!-- PROFIL -->
+    <section class="view" id="view-profil">
+      <div class="greeting"><h2>Profil</h2></div>
+      <div class="profile-card">
+        <div class="profile-avatar" id="profileInitials">DI</div>
+        <div>
+          <div style="font-weight:700; font-size:1rem;" id="profileName">Meine Sammlung</div>
+          <div style="font-size:0.75rem; color: var(--text-faint);" id="profileMeta"></div>
+        </div>
+      </div>
+
+      <div class="section-head"><h3>Darstellung</h3></div>
+      <div class="settings-item">
+        <div><div class="l">Dunkles Design</div><div class="s">Für dunkle Umgebung optimiert</div></div>
+        <div class="switch on" id="themeSwitch" onclick="toggleTheme()"></div>
+      </div>
+
+      <div class="section-head"><h3>Daten</h3></div>
+      <div class="settings-item" onclick="exportData()" style="cursor:pointer;">
+        <div><div class="l">Sammlung exportieren</div><div class="s">Backup als JSON-Datei speichern</div></div>
+        <div class="icon-btn" style="pointer-events:none;"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="settings-item" onclick="document.getElementById('importFile').click()" style="cursor:pointer;">
+        <div><div class="l">Sammlung importieren</div><div class="s">Backup-Datei laden</div></div>
+        <div class="icon-btn" style="pointer-events:none;"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21V9m0 0l-4 4m4-4l4 4M4 3h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)" />
+      <div class="settings-item" onclick="resetData()" style="cursor:pointer;">
+        <div><div class="l" style="color:var(--danger);">Zurücksetzen</div><div class="s">Auf Standard-Sammlung zurücksetzen</div></div>
+      </div>
+
+      <div class="section-head"><h3>Über</h3></div>
+      <div class="notes-box">Persönliche Uhren-App · läuft komplett offline im Browser · alle Daten bleiben lokal auf diesem Gerät gespeichert (localStorage).</div>
+    </section>
+
+  </main>
+
+  <nav class="tabbar">
+    <div class="tab active" data-tab="home" onclick="goto('home')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11l8-7 8 7v9a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1v-9z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      <span>Home</span>
+    </div>
+    <div class="tab" data-tab="sammlung" onclick="goto('sammlung')">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="3" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="13" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="13" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg>
+      <span>Sammlung</span>
+    </div>
+    <div class="tab" data-tab="service" onclick="goto('service')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a3 3 0 10-4.24 4.24L4 17v3h3l6.46-6.46a3 3 0 004.24-4.24l-2.1 2.1-2-2 2.1-2.1z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <span>Service</span>
+    </div>
+    <div class="tab" data-tab="profil" onclick="goto('profil')">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1.5-4 4-6 7.5-6s6 2 7.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span>Profil</span>
+    </div>
+  </nav>
+
+  <!-- DETAIL OVERLAY -->
+  <div class="overlay" id="detailOverlay">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="icon-btn sheet-close" onclick="closeOverlay('detailOverlay')">✕</div>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <!-- EDIT OVERLAY -->
+  <div class="overlay" id="editOverlay">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="icon-btn sheet-close" onclick="closeOverlay('editOverlay')">✕</div>
+      <div id="editContent"></div>
+    </div>
+  </div>
+
+  <!-- SERVICE ADD OVERLAY -->
+  <div class="overlay" id="serviceOverlay">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="icon-btn sheet-close" onclick="closeOverlay('serviceOverlay')">✕</div>
+      <div id="serviceContent"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ---------------------------------------------------------
+   DATA
+--------------------------------------------------------- */
+const STORAGE_KEY = 'meine_uhren_collection_v1';
+
+function defaultData(){
+  const today = new Date();
+  const iso = (d)=> d.toISOString().slice(0,10);
+  const monthsAgo = (n)=>{ const d=new Date(); d.setMonth(d.getMonth()-n); return iso(d); };
+
+  return {
+    settings: { theme: 'dark', ownerName: 'Meine Sammlung' },
+    watches: [
+      {
+        id: 'omega-57',
+        brand: 'Omega',
+        model: 'Seamaster 300 "1957 Trilogy" Blau',
+        reference: '234.10.39.20.03.001',
+        dialColor: 'Blau (Sonnenschliff)',
+        accent: '#2e5aa8',
+        emoji: '🔵',
+        caseMaterial: 'Edelstahl',
+        caseSize: '39.7 mm',
+        movement: 'Co-Axial Master Chronometer Kal. 8804',
+        waterResistance: '300 m',
+        strap: 'Edelstahl-Armband',
+        purchaseDate: monthsAgo(14),
+        purchasePrice: 6900,
+        currentValue: 7200,
+        serviceIntervalYears: 7,
+        lastServiceDate: '',
+        favorite: true,
+        notes: 'Anniversary-Modell der 1957 Trilogy, blaues Zifferblatt. Referenz/Details nach eigenem Exemplar anpassen.',
+        history: [
+          { date: monthsAgo(14), type: 'Kauf', note: 'Neukauf beim Fachhändler', cost: 6900 }
+        ],
+        wearLog: []
+      },
+      {
+        id: 'seiko-presage',
+        brand: 'Seiko',
+        model: 'Presage',
+        reference: '',
+        dialColor: 'Grün (Sunburst)',
+        accent: '#2f6b4f',
+        emoji: '🟢',
+        caseMaterial: 'Edelstahl',
+        caseSize: '40.5 mm',
+        movement: 'Automatik Kal. 4R35',
+        waterResistance: '100 m',
+        strap: 'Edelstahl-Armband',
+        purchaseDate: monthsAgo(20),
+        purchasePrice: 420,
+        currentValue: 380,
+        serviceIntervalYears: 5,
+        lastServiceDate: '',
+        favorite: false,
+        notes: 'Details (genaue Referenz, Zifferblattfarbe) nach eigenem Modell anpassen.',
+        history: [
+          { date: monthsAgo(20), type: 'Kauf', note: 'Neukauf', cost: 420 }
+        ],
+        wearLog: []
+      },
+      {
+        id: 'casio',
+        brand: 'Casio',
+        model: 'G-Shock GA-2100',
+        reference: 'GA-2100-1A1',
+        dialColor: 'Schwarz',
+        accent: '#3a3a3a',
+        emoji: '⚫',
+        caseMaterial: 'Carbon / Resin',
+        caseSize: '45.4 mm',
+        movement: 'Quarz',
+        waterResistance: '200 m',
+        strap: 'Resin-Armband',
+        purchaseDate: monthsAgo(9),
+        purchasePrice: 110,
+        currentValue: 100,
+        serviceIntervalYears: 0,
+        lastServiceDate: '',
+        favorite: false,
+        notes: 'Alltags- und Sportuhr. Wartungsfrei (Batteriewechsel nach Bedarf).',
+        history: [
+          { date: monthsAgo(9), type: 'Kauf', note: 'Neukauf', cost: 110 }
+        ],
+        wearLog: []
+      },
+      {
+        id: 'tagheuer-aquaracer',
+        brand: 'TAG Heuer',
+        model: 'Aquaracer Professional 300',
+        reference: '',
+        dialColor: 'Blau',
+        accent: '#1c6fa8',
+        emoji: '🔷',
+        caseMaterial: 'Edelstahl',
+        caseSize: '43 mm',
+        movement: 'Automatik Kal. 5',
+        waterResistance: '300 m',
+        strap: 'Edelstahl-Armband',
+        purchaseDate: monthsAgo(30),
+        purchasePrice: 2650,
+        currentValue: 2500,
+        serviceIntervalYears: 5,
+        lastServiceDate: '',
+        favorite: true,
+        notes: 'Details (genaue Referenz) nach eigenem Modell anpassen.',
+        history: [
+          { date: monthsAgo(30), type: 'Kauf', note: 'Neukauf', cost: 2650 }
+        ],
+        wearLog: []
+      },
+      {
+        id: 'swatch',
+        brand: 'Swatch',
+        model: 'Swatch',
+        reference: '',
+        dialColor: '-',
+        accent: '#c0392b',
+        emoji: '🟠',
+        caseMaterial: 'Kunststoff / Bioceramic',
+        caseSize: '41 mm',
+        movement: 'Quarz',
+        waterResistance: '30 m',
+        strap: 'Silikon-Armband',
+        purchaseDate: monthsAgo(6),
+        purchasePrice: 90,
+        currentValue: 90,
+        serviceIntervalYears: 0,
+        lastServiceDate: '',
+        favorite: false,
+        notes: 'Details nach eigenem Modell anpassen.',
+        history: [
+          { date: monthsAgo(6), type: 'Kauf', note: 'Neukauf', cost: 90 }
+        ],
+        wearLog: []
+      }
+    ]
+  };
+}
+
+let DB = loadData();
+let currentBrandFilter = 'Alle';
+let activeWatchId = null;
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  const d = defaultData();
+  saveData(d);
+  return d;
+}
+function saveData(d){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(d || DB));
+}
+
+/* ---------------------------------------------------------
+   UTIL
+--------------------------------------------------------- */
+function fmtCHF(n){ return 'CHF ' + Number(n||0).toLocaleString('de-CH'); }
+function fmtDate(iso){
+  if(!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleDateString('de-CH', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function addYears(iso, y){
+  const d = new Date(iso);
+  d.setFullYear(d.getFullYear()+y);
+  return d.toISOString().slice(0,10);
+}
+function daysBetween(a,b){
+  return Math.round((new Date(a) - new Date(b)) / 86400000);
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=> t.classList.remove('show'), 1800);
+}
+function getWatch(id){ return DB.watches.find(w=>w.id===id); }
+
+function nextServiceInfo(w){
+  if(!w.serviceIntervalYears || w.serviceIntervalYears <= 0){
+    return { label: 'Kein Service nötig', status: 'ok', date: null };
+  }
+  const base = w.lastServiceDate || w.purchaseDate;
+  const due = addYears(base, w.serviceIntervalYears);
+  const daysLeft = daysBetween(due, todayISO());
+  let status = 'ok';
+  if(daysLeft <= 0) status = 'due';
+  else if(daysLeft <= 90) status = 'soon';
+  return { label: fmtDate(due), status, date: due, daysLeft };
+}
+
+/* ---------------------------------------------------------
+   NAVIGATION
+--------------------------------------------------------- */
+function goto(tab){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+tab).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+  window.scrollTo({top:0, behavior:'instant'});
+  renderAll();
+}
+function closeOverlay(id){ document.getElementById(id).classList.remove('show'); }
+function openOverlayEl(id){ document.getElementById(id).classList.add('show'); }
+
+/* ---------------------------------------------------------
+   RENDER: HOME
+--------------------------------------------------------- */
+function renderGreeting(){
+  const h = new Date().getHours();
+  const g = h < 11 ? 'Guten Morgen' : h < 18 ? 'Guten Tag' : 'Guten Abend';
+  document.getElementById('greetingText').textContent = g;
+  document.getElementById('dateText').textContent = new Date().toLocaleDateString('de-CH', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+
+function renderStats(){
+  const list = DB.watches;
+  document.getElementById('statCount').textContent = list.length;
+  const totalValue = list.reduce((s,w)=> s + (Number(w.currentValue)||0), 0);
+  document.getElementById('statValue').textContent = totalValue.toLocaleString('de-CH');
+
+  let soonest = null;
+  list.forEach(w=>{
+    const info = nextServiceInfo(w);
+    if(info.date && (!soonest || info.date < soonest)) soonest = info.date;
+  });
+  document.getElementById('statService').textContent = soonest ? fmtDate(soonest) : '—';
+}
+
+function renderBrandChips(){
+  const brands = ['Alle', ...new Set(DB.watches.map(w=>w.brand))];
+  [document.getElementById('brandChips'), document.getElementById('brandChips2')].forEach(container=>{
+    if(!container) return;
+    container.innerHTML = brands.map(b=>
+      `<div class="chip ${b===currentBrandFilter?'active':''}" onclick="setBrandFilter('${b.replace(/'/g,"\\'")}')">${b}</div>`
+    ).join('');
+  });
+}
+function setBrandFilter(b){
+  currentBrandFilter = b;
+  renderAll();
+}
+
+function watchCardHTML(w, small){
+  const info = nextServiceInfo(w);
+  return `
+    <div class="watch-card" onclick="openDetail('${w.id}')">
+      <div class="fav ${w.favorite?'on':''}" onclick="event.stopPropagation(); toggleFavorite('${w.id}')">${w.favorite?'♥':'♡'}</div>
+      <div class="dial" style="border-color:${w.accent}; background:${w.accent}22;">${w.emoji}</div>
+      <div class="brand">${w.brand}</div>
+      <div class="model">${w.model}</div>
+      <div class="price">${fmtCHF(w.currentValue)}</div>
+    </div>`;
+}
+
+function renderHomeGrid(){
+  const list = DB.watches.slice(0,4);
+  document.getElementById('homeGrid').innerHTML = list.map(w=>watchCardHTML(w)).join('');
+}
+
+function renderTodayCard(){
+  const worn = DB.watches.find(w => w.wearLog && w.wearLog[w.wearLog.length-1] === todayISO());
+  const el = document.getElementById('todayCard');
+  if(worn){
+    el.innerHTML = `
+      <div class="today-card">
+        <div class="dial" style="border-color:${worn.accent}; background:${worn.accent}22;">${worn.emoji}</div>
+        <div class="info">
+          <div class="b">${worn.brand}</div>
+          <div class="m">${worn.model}</div>
+          <div class="s">Heute getragen · ${(worn.wearLog||[]).length}x insgesamt</div>
+        </div>
+        <div class="change" onclick="openWearPicker()">Ändern</div>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div class="today-card">
+        <div class="dial" style="border-color: var(--border); background: var(--bg-elev2);">⌚</div>
+        <div class="info">
+          <div class="m">Noch keine Uhr gewählt</div>
+          <div class="s">Wähle, welche Uhr du heute trägst</div>
+        </div>
+        <div class="change" onclick="openWearPicker()">Wählen</div>
+      </div>`;
+  }
+}
+
+function openWearPicker(){
+  const content = document.getElementById('detailContent');
+  content.innerHTML = `
+    <div class="section-head" style="margin-top:0;"><h3>Heute getragen</h3></div>
+    ${DB.watches.map(w=>`
+      <div class="watch-list-row" onclick="setWornToday('${w.id}')">
+        <div class="dial" style="border-color:${w.accent}; background:${w.accent}22;">${w.emoji}</div>
+        <div class="info"><div class="m">${w.model}</div><div class="b">${w.brand}</div></div>
+      </div>
+    `).join('')}
+  `;
+  openOverlayEl('detailOverlay');
+}
+function setWornToday(id){
+  const w = getWatch(id);
+  const t = todayISO();
+  w.wearLog = w.wearLog || [];
+  if(w.wearLog[w.wearLog.length-1] !== t) w.wearLog.push(t);
+  saveData();
+  closeOverlay('detailOverlay');
+  toast('Heute: ' + w.model);
+  renderAll();
+}
+
+function toggleFavorite(id){
+  const w = getWatch(id);
+  w.favorite = !w.favorite;
+  saveData();
+  renderAll();
+}
+
+/* ---------------------------------------------------------
+   RENDER: SAMMLUNG
+--------------------------------------------------------- */
+function renderSammlung(){
+  document.getElementById('sammlungSub').textContent = DB.watches.length + ' Uhren in deiner Sammlung';
+  const filtered = currentBrandFilter==='Alle' ? DB.watches : DB.watches.filter(w=>w.brand===currentBrandFilter);
+  const grid = document.getElementById('sammlungGrid');
+  if(filtered.length === 0){
+    grid.innerHTML = '';
+    grid.parentElement.insertAdjacentHTML('beforeend', '');
+  }
+  grid.innerHTML = filtered.map(w=>watchCardHTML(w)).join('') || '<div class="empty">Keine Uhren in dieser Kategorie</div>';
+}
+
+/* ---------------------------------------------------------
+   RENDER: SERVICE
+--------------------------------------------------------- */
+function renderService(){
+  const rows = DB.watches.map(w=>({w, info: nextServiceInfo(w)}))
+    .sort((a,b)=>{
+      if(!a.info.date && !b.info.date) return 0;
+      if(!a.info.date) return 1;
+      if(!b.info.date) return -1;
+      return a.info.date < b.info.date ? -1 : 1;
+    });
+
+  const dueCount = rows.filter(r=> r.info.status==='due' || r.info.status==='soon').length;
+  document.getElementById('serviceDueCount').textContent = dueCount;
+
+  document.getElementById('serviceList').innerHTML = rows.map(({w,info})=>`
+    <div class="watch-list-row" onclick="openDetail('${w.id}', true)">
+      <div class="dial" style="border-color:${w.accent}; background:${w.accent}22;">${w.emoji}</div>
+      <div class="info">
+        <div class="m">${w.model}</div>
+        <div class="b">${w.brand} · Nächster Service: ${info.label}</div>
+      </div>
+      <div class="badge ${info.status}">${info.status==='due'?'Fällig':info.status==='soon'?'Bald':'OK'}</div>
+    </div>
+  `).join('');
+}
+
+function openAddServiceGlobal(){
+  openServiceForm(DB.watches[0].id);
+}
+
+function openServiceForm(watchId){
+  const w = getWatch(watchId);
+  const content = document.getElementById('serviceContent');
+  content.innerHTML = `
+    <div class="section-head" style="margin-top:0;"><h3>Service-Eintrag hinzufügen</h3></div>
+    <div class="form-row">
+      <label>Uhr</label>
+      <select id="svcWatch">
+        ${DB.watches.map(x=>`<option value="${x.id}" ${x.id===watchId?'selected':''}>${x.brand} — ${x.model}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-2col">
+      <div class="form-row"><label>Datum</label><input type="date" id="svcDate" value="${todayISO()}"/></div>
+      <div class="form-row"><label>Kosten (CHF)</label><input type="number" id="svcCost" placeholder="0"/></div>
+    </div>
+    <div class="form-row">
+      <label>Art</label>
+      <select id="svcType">
+        <option>Vollrevision</option>
+        <option>Batteriewechsel</option>
+        <option>Reinigung</option>
+        <option>Reparatur</option>
+        <option>Armband/Gehäuse</option>
+        <option>Sonstiges</option>
+      </select>
+    </div>
+    <div class="form-row"><label>Notiz</label><textarea id="svcNote" placeholder="z.B. beim Uhrmacher XY durchgeführt"></textarea></div>
+    <div class="action-row">
+      <div class="btn primary" onclick="saveServiceEntry()">Speichern</div>
+    </div>
+  `;
+  openOverlayEl('serviceOverlay');
+}
+function saveServiceEntry(){
+  const id = document.getElementById('svcWatch').value;
+  const w = getWatch(id);
+  const date = document.getElementById('svcDate').value || todayISO();
+  const type = document.getElementById('svcType').value;
+  const note = document.getElementById('svcNote').value;
+  const cost = Number(document.getElementById('svcCost').value)||0;
+  w.history.push({ date, type, note, cost });
+  w.history.sort((a,b)=> a.date < b.date ? 1 : -1);
+  if(type === 'Vollrevision'){ w.lastServiceDate = date; }
+  saveData();
+  closeOverlay('serviceOverlay');
+  toast('Service-Eintrag gespeichert');
+  renderAll();
+  if(activeWatchId === id) openDetail(id);
+}
+
+/* ---------------------------------------------------------
+   DETAIL VIEW
+--------------------------------------------------------- */
+function openDetail(id, fromService){
+  activeWatchId = id;
+  const w = getWatch(id);
+  const info = nextServiceInfo(w);
+  const content = document.getElementById('detailContent');
+  content.innerHTML = `
+    <div class="detail-head">
+      <div class="detail-dial" style="border-color:${w.accent}; background:${w.accent}22; ${w.photo?`background-image:url(${w.photo});`:''}">
+        ${w.photo?'':w.emoji}
+      </div>
+      <div>
+        <div class="b">${w.brand}</div>
+        <div class="m">${w.model}</div>
+        <div class="ref">${w.reference || w.dialColor || ''}</div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <div class="btn ${w.favorite?'primary':''}" onclick="toggleFavorite('${w.id}'); openDetail('${w.id}')">
+        ${w.favorite?'♥ Favorit':'♡ Favorit'}
+      </div>
+      <div class="btn" onclick="setWornToday('${w.id}')">⌚ Heute tragen</div>
+      <div class="btn" onclick="openEdit('${w.id}')">✎ Bearbeiten</div>
+    </div>
+
+    <div class="spec-grid">
+      <div class="spec-item"><div class="l">Zifferblatt</div><div class="v">${w.dialColor||'-'}</div></div>
+      <div class="spec-item"><div class="l">Gehäuse</div><div class="v">${w.caseMaterial||'-'} · ${w.caseSize||'-'}</div></div>
+      <div class="spec-item"><div class="l">Werk</div><div class="v">${w.movement||'-'}</div></div>
+      <div class="spec-item"><div class="l">Wasserdicht</div><div class="v">${w.waterResistance||'-'}</div></div>
+      <div class="spec-item"><div class="l">Armband</div><div class="v">${w.strap||'-'}</div></div>
+      <div class="spec-item"><div class="l">Getragen</div><div class="v">${(w.wearLog||[]).length}x</div></div>
+      <div class="spec-item"><div class="l">Kaufpreis</div><div class="v">${fmtCHF(w.purchasePrice)}</div></div>
+      <div class="spec-item"><div class="l">Aktueller Wert</div><div class="v">${fmtCHF(w.currentValue)}</div></div>
+    </div>
+
+    <div class="section-head" style="margin-top:0;"><h3>Service-Status</h3></div>
+    <div class="service-summary">
+      <div>
+        <div class="l">Nächster Service</div>
+        <div class="v" style="font-size:1rem; color: ${info.status==='due'?'var(--danger)':info.status==='soon'?'var(--gold)':'var(--ok)'};">${info.label}</div>
+      </div>
+      <div class="btn primary" style="flex:none; padding:10px 16px;" onclick="openServiceForm('${w.id}')">+ Eintrag</div>
+    </div>
+
+    <div class="section-head" style="margin-top:0;"><h3>Notizen</h3></div>
+    <div class="notes-box">${w.notes || 'Keine Notizen.'}</div>
+
+    <div class="section-head" style="margin-top:0;"><h3>Historie</h3></div>
+    <div class="timeline">
+      ${(w.history && w.history.length) ? w.history.map((h,idx)=>`
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="info">
+            <div class="t1">${h.type}${h.cost?' · '+fmtCHF(h.cost):''}</div>
+            <div class="t2">${fmtDate(h.date)}${h.note?' · '+h.note:''}</div>
+          </div>
+          <div class="del" onclick="deleteHistoryEntry('${w.id}', ${idx})">✕</div>
+        </div>
+      `).join('') : '<div class="empty">Noch keine Einträge</div>'}
+    </div>
+  `;
+  openOverlayEl('detailOverlay');
+}
+function deleteHistoryEntry(id, idx){
+  const w = getWatch(id);
+  w.history.splice(idx,1);
+  saveData();
+  openDetail(id);
+  renderAll();
+}
+
+/* ---------------------------------------------------------
+   EDIT VIEW
+--------------------------------------------------------- */
+function openEdit(id){
+  const w = getWatch(id);
+  const content = document.getElementById('editContent');
+  content.innerHTML = `
+    <div class="section-head" style="margin-top:0;"><h3>Uhr bearbeiten</h3></div>
+    <div class="form-row"><label>Marke</label><input id="edBrand" value="${w.brand}"/></div>
+    <div class="form-row"><label>Modell</label><input id="edModel" value="${w.model}"/></div>
+    <div class="form-row"><label>Referenz</label><input id="edRef" value="${w.reference||''}"/></div>
+    <div class="form-2col">
+      <div class="form-row"><label>Zifferblattfarbe</label><input id="edDial" value="${w.dialColor||''}"/></div>
+      <div class="form-row"><label>Akzentfarbe</label><input type="color" id="edAccent" value="${w.accent}" style="height:40px; padding:4px;"/></div>
+    </div>
+    <div class="form-2col">
+      <div class="form-row"><label>Gehäusematerial</label><input id="edCase" value="${w.caseMaterial||''}"/></div>
+      <div class="form-row"><label>Gehäusegrösse</label><input id="edSize" value="${w.caseSize||''}"/></div>
+    </div>
+    <div class="form-row"><label>Werk</label><input id="edMovement" value="${w.movement||''}"/></div>
+    <div class="form-2col">
+      <div class="form-row"><label>Wasserdichtigkeit</label><input id="edWater" value="${w.waterResistance||''}"/></div>
+      <div class="form-row"><label>Armband</label><input id="edStrap" value="${w.strap||''}"/></div>
+    </div>
+    <div class="form-2col">
+      <div class="form-row"><label>Kaufdatum</label><input type="date" id="edPurchaseDate" value="${w.purchaseDate||''}"/></div>
+      <div class="form-row"><label>Kaufpreis (CHF)</label><input type="number" id="edPurchasePrice" value="${w.purchasePrice||0}"/></div>
+    </div>
+    <div class="form-2col">
+      <div class="form-row"><label>Aktueller Wert (CHF)</label><input type="number" id="edCurrentValue" value="${w.currentValue||0}"/></div>
+      <div class="form-row"><label>Service-Intervall (Jahre, 0 = keins)</label><input type="number" id="edInterval" value="${w.serviceIntervalYears||0}"/></div>
+    </div>
+    <div class="form-row"><label>Notizen</label><textarea id="edNotes">${w.notes||''}</textarea></div>
+    <div class="form-row">
+      <label>Foto (optional)</label>
+      <input type="file" id="edPhoto" accept="image/*"/>
+    </div>
+    <div class="action-row">
+      <div class="btn primary" onclick="saveEdit('${w.id}')">Speichern</div>
+    </div>
+  `;
+  openOverlayEl('editOverlay');
+}
+function saveEdit(id){
+  const w = getWatch(id);
+  w.brand = document.getElementById('edBrand').value.trim() || w.brand;
+  w.model = document.getElementById('edModel').value.trim() || w.model;
+  w.reference = document.getElementById('edRef').value.trim();
+  w.dialColor = document.getElementById('edDial').value.trim();
+  w.accent = document.getElementById('edAccent').value;
+  w.caseMaterial = document.getElementById('edCase').value.trim();
+  w.caseSize = document.getElementById('edSize').value.trim();
+  w.movement = document.getElementById('edMovement').value.trim();
+  w.waterResistance = document.getElementById('edWater').value.trim();
+  w.strap = document.getElementById('edStrap').value.trim();
+  w.purchaseDate = document.getElementById('edPurchaseDate').value;
+  w.purchasePrice = Number(document.getElementById('edPurchasePrice').value)||0;
+  w.currentValue = Number(document.getElementById('edCurrentValue').value)||0;
+  w.serviceIntervalYears = Number(document.getElementById('edInterval').value)||0;
+  w.notes = document.getElementById('edNotes').value;
+
+  const fileInput = document.getElementById('edPhoto');
+  const finish = ()=>{
+    saveData();
+    closeOverlay('editOverlay');
+    toast('Änderungen gespeichert');
+    renderAll();
+    openDetail(id);
+  };
+  if(fileInput.files && fileInput.files[0]){
+    const reader = new FileReader();
+    reader.onload = (e)=>{ w.photo = e.target.result; finish(); };
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    finish();
+  }
+}
+
+/* ---------------------------------------------------------
+   SETTINGS / PROFIL
+--------------------------------------------------------- */
+function openSettings(){ goto('profil'); }
+
+function renderProfil(){
+  document.getElementById('profileName').textContent = DB.settings.ownerName || 'Meine Sammlung';
+  document.getElementById('profileMeta').textContent = DB.watches.length + ' Uhren · seit ' + fmtDate(DB.watches.reduce((min,w)=> (w.purchaseDate && (!min || w.purchaseDate<min)) ? w.purchaseDate : min, null));
+  const initials = (DB.settings.ownerName||'MS').split(' ').map(s=>s[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('profileInitials').textContent = initials || 'MS';
+  document.getElementById('themeSwitch').classList.toggle('on', DB.settings.theme !== 'light');
+}
+
+function toggleTheme(){
+  DB.settings.theme = DB.settings.theme === 'light' ? 'dark' : 'light';
+  applyTheme();
+  saveData();
+}
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', DB.settings.theme === 'light' ? 'light' : 'dark');
+  document.getElementById('themeSwitch').classList.toggle('on', DB.settings.theme !== 'light');
+}
+
+function exportData(){
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'meine-uhren-sammlung.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Export gestartet');
+}
+function importData(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed.watches) throw new Error('invalid');
+      DB = parsed;
+      saveData();
+      applyTheme();
+      toast('Sammlung importiert');
+      renderAll();
+    }catch(err){
+      toast('Ungültige Datei');
+    }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+function resetData(){
+  if(!confirm('Wirklich auf die Standard-Sammlung zurücksetzen? Eigene Änderungen gehen verloren.')) return;
+  DB = defaultData();
+  saveData();
+  applyTheme();
+  toast('Zurückgesetzt');
+  renderAll();
+}
+
+/* ---------------------------------------------------------
+   MASTER RENDER
+--------------------------------------------------------- */
+function renderAll(){
+  renderGreeting();
+  renderStats();
+  renderBrandChips();
+  renderHomeGrid();
+  renderTodayCard();
+  renderSammlung();
+  renderService();
+  renderProfil();
+}
+
+applyTheme();
+renderAll();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
