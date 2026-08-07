@@ -6,11 +6,14 @@ einem Ort sammeln, versioniert über Git.
 
 ## Struktur
 
+- `Kunden/` – eine Markdown-Datei pro Kunde/Standort (Kurzprofil, Status,
+  Ansprechpartner, offene Punkte, Historie)
 - `Projekte/` – eine Markdown-Datei pro Projekt (Status, Ziele, offene Punkte,
   Historie)
 - `Anfragen/` – eine Markdown-Datei pro Anfrage (Kunde/Absender, worum es
   geht, Status, nächste Schritte)
-- `_Vorlage-Projekt.md` / `_Vorlage-Anfrage.md` – Vorlagen für neue Einträge
+- `_Vorlage-Kunde.md` / `_Vorlage-Projekt.md` / `_Vorlage-Anfrage.md` –
+  Vorlagen für neue Einträge
 - `00-Übersicht.md` – Übersicht/Index mit Links zu allen Projekten und
   Anfragen (Obsidian "Map of Content")
 
